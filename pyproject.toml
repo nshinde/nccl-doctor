@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nccl-doctor"
+version = "0.1.0"
+description = "NCCL failure diagnosis, topology linting, and tuning advisor for GPU clusters"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []   # stdlib-only by design: must run on air-gapped HPC nodes
+authors = [
+    { name = "Nilesh Shinde" }
+]
+keywords = ["nccl", "cuda", "gpu", "hpc", "slurm", "distributed-training", "infiniband", "roce"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Clustering",
+    "Topic :: System :: Distributed Computing",
+    "Topic :: System :: Hardware",
+]
+
+[project.scripts]
+nccl-doctor = "nccl_doctor.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/nshinde/nccl-doctor"
+Documentation = "https://github.com/nshinde/nccl-doctor#readme"
+Issues = "https://github.com/nshinde/nccl-doctor/issues"
+
+[tool.setuptools.packages.find]
+include = ["nccl_doctor*"]

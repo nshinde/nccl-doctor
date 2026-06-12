@@ -1,0 +1,36 @@
+========================================================================
+ nccl-doctor report — job slurm-8841273 (WATCHDOG_TIMEOUT)
+========================================================================
+ Nodes: gpu-114, gpu-115, gpu-201, gpu-202   world_size=32   NCCL 2.26.2
+
+ VERDICT: FABRIC_LINK_DEGRADATION   (confidence 0.97)
+   Rank 3 reported the timeout but was not stuck — true origin is ['gpu-201'].
+   origin host(s): gpu-201  desync at seq~48211
+
+ FINDINGS
+   [HIGH    ] NET-03   Symbol errors on gpu-202/mlx5_4:1: +1240 during job (above storm threshold 100) — marginal cable/transceiver
+              ↳ counters:gpu-202/mlx5_4:1: SymbolErrorCounter: 12 -> 1252
+   [HIGH    ] STRAG-01 Flight recorder: ranks [16, 17, 18, 19, 20, 21, 22, 23] desynced at seq~48211 (8/32 ranks stuck at seq<48211 (desync at seq~48211, op=ALLREDUCE)). Rank 3 raised the timeout but was NOT stuck — it was the messenger, not the cause.
+              ↳ flight_recorder: 8/32 ranks stuck at seq<48211 (desync at seq~48211, op=ALLREDUCE)
+   [HIGH    ] NET-01   IB completion error on gpu-201 -> peer 10.0.1.12: IBV_WC_RETRY_EXC_ERR (transport retry counter exceeded — packet loss or unreachable peer on the fabric path) (1 occurrence(s))
+              ↳ nccl_log:gpu-201.9002.log:L13: gpu-201:9002:9035 [2] NCCL WARN NET/IB : Got completion from peer 10.0.1.12<48133> with error 12, opcode 0, le
+   [MEDIUM  ] NET-03   Receive/discard errors on gpu-201/mlx5_4:1: PortXmitDiscards +312
+              ↳ counters:gpu-201/mlx5_4:1: PortXmitDiscards: 7 -> 319
+   [LOW     ] ALGO-02  LL128 protocol active during a run that timed out. If failures recur only with LL128 collectives, exclude it for this job class (NCCL_PROTO=^LL128) as a bisection step.
+              ↳ nccl_log:tuning: protocols seen: ['LL128']
+
+ RECOMMENDED ACTIONS
+   P1 [HARDWARE] Symbol error storm on gpu-202/mlx5_4:1: marginal physical link. Replace cable/transceiver; re-run mlxlink BER check after repair.
+   P1 [HARDWARE] Inspect fabric path for gpu-201, peer:10.0.1.12: transport retries exhausted indicates packet loss or an unreachable peer. Correlate with NET-02/NET-03 counters; check cable/transceiver and switch port.
+   P2 [SCHEDULER] Straggler origin host gpu-201: check throttle reasons, Xid, CPU contention, dataloader stalls before resubmitting onto it.
+   P3 [NCCL_CONFIG] Interim mitigation for this job class: NCCL_IB_TIMEOUT=20 (default 18; exponential, 4.096us x 2^n) and NCCL_IB_RETRY_CNT=10 (default 7).
+        caveat: Masks brief loss; remove after the fabric fix.
+   P3 [NCCL_CONFIG] Bisection step: NCCL_PROTO=^LL128 for this job class only.
+        caveat: Do not pin NCCL_PROTO=Simple globally; it costs latency everywhere.
+
+ NODE RELIABILITY (fleet median 0.0)
+   gpu-114          0.000
+   gpu-115          0.000
+   gpu-201          0.000
+   gpu-202          0.000
+
