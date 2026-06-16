@@ -206,4 +206,4 @@ Read the full design at [docs/design.md](docs/design.md).
 
 ## License
 
-No license has been selected yet. Add one before publishing this as an open-source project.
+Apache License 2.0. See [LICENSE](LICENSE).
